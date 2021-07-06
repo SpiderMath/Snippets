@@ -1,0 +1,23 @@
+{
+  "name": "snippets",
+  "version": "1.0.0",
+  "description": "Some things never change",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SpiderMath/Snippets.git"
+  },
+  "author": "SpiderMath",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SpiderMath/Snippets/issues"
+  },
+  "homepage": "https://github.com/SpiderMath/Snippets#readme",
+  "devDependencies": {
+    "@typescript-eslint/parser": "^4.28.2",
+    "eslint": "^7.30.0"
+  }
+}
