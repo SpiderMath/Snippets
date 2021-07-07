@@ -13,18 +13,18 @@ interface SortingMethod {
 
 export class AsciiTable {
 	private static LEFT = 0;
-	private static CENTRE = 1;
+	private static CENTER = 1;
 	private static RIGHT = 2;
 	private options: ConstructorOptions;
 	private __name: string | object = "";
-	private __nameAlign = AsciiTable.CENTRE;
+	private __nameAlign = AsciiTable.CENTER;
 	private __rows = [];
 	private __maxCells = 0;
 	private __aligns = [];
 	private __colMaxes = [];
 	private __spacing = 1;
 	private __heading = [];
-	private __headingAlign = AsciiTable.CENTRE;
+	private __headingAlign = AsciiTable.CENTER;
 	private __edge = "|";
 	private __fill = "-";
 	private __top = ".";
@@ -45,12 +45,12 @@ export class AsciiTable {
 	public static align(direction: number, str: string, len: number, pad: string) {
 		if (direction === AsciiTable.LEFT) return AsciiTable.alignLeft(str, len, pad);
 		if (direction === AsciiTable.RIGHT) return AsciiTable.alignRight(str, len, pad);
-		if (direction === AsciiTable.CENTRE) return AsciiTable.alignCentre(str, len, pad);
+		if (direction === AsciiTable.CENTER) return AsciiTable.alignCenter(str, len, pad);
 
 		return AsciiTable.alignAuto(str, len, pad);
 	}
 
-	public static alignCentre(str: string | any, len: number, pad: string) {
+	public static alignCenter(str: string | any, len: number, pad: string) {
 		if (!len || len < 0) return "";
 		if (str === undefined || str === null) str = "";
 		if (typeof pad === "undefined") pad = " ";
@@ -105,9 +105,9 @@ export class AsciiTable {
 		if (str.length < len) {
 		  	switch(type) {
 
-			case "[object Number]": return AsciiTable.alignRight(str, len, pad);
+			case "[object Number]": return AsciiTable.alignCenter(str, len, pad);
 
-			default: return AsciiTable.alignLeft(str, len, pad);
+			default: return AsciiTable.alignCenter(str, len, pad);
 
 			}
 		}
@@ -275,89 +275,90 @@ export class AsciiTable {
 	public render() {
 		const self = this;
 		const body = [];
-		const maxLen = this.__maxCells;
-		const max = AsciiTable.arrayFill(maxLen, 0);
-		let total = maxLen * 3;
+		const mLen = this.__maxCells;
+		const max = AsciiTable.arrayFill(mLen, 0);
+		let total = mLen * 3;
 		const rows = this.__rows;
-		const justify = this.__justify ? Math.max.apply(null, max) : 0;
 		const border = this.__border;
-		const all = this.__heading ? [this.__heading].concat(rows) : rows;
+		const all = this.__heading
+			? [this.__heading].concat(rows)
+			: rows;
 
 		for (let i = 0; i < all.length; i++) {
 			const row = all[i];
-			for (let k = 0; k < maxLen; k++) {
-			  const cell = row[k];
-			  max[k] = Math.max(max[k], cell ? cell.toString().length : 0);
+			for (let k = 0; k < mLen; k++) {
+				const cell = row[k];
+				max[k] = Math.max(max[k], cell ? cell.toString().length : 0);
 			}
 		}
+		this.__colMaxes = max;
+		const justify = this.__justify ? Math.max.apply(null, max) : 0;
 
-		max.forEach((x) => total += justify ? justify : x + self.__spacing);
-		if(justify) total += max.length;
+		max.forEach(function(x) {
+			total += justify ? justify : x + self.__spacing;
+		});
+		justify && (total += max.length);
 		total -= this.__spacing;
 
-		if(border) body.push(this._seperator(total - maxLen + 1, this.__top));
-
-		if(this.__name) {
-			body.push(this._renderTitle(total - maxLen + 1));
-			if(border) body.push(this._seperator(total - maxLen + 1));
+		border && body.push(this._seperator(total - mLen + 1, this.__top));
+		if (this.__name) {
+			body.push(this._renderTitle(total - mLen + 1));
+			border && body.push(this._seperator(total - mLen + 1));
 		}
-
-		if(this.__heading) {
+		if (this.__heading) {
 			body.push(this._renderRow(this.__heading, " ", this.__headingAlign));
-    		body.push(this._rowSeperator());
+			// @ts-ignore
+			body.push(this._rowSeperator(mLen, this.__fill));
 		}
-
-		for(let i = 0; i < this.__rows.length; i++) body.push(this._renderRow(this.__rows[i], ""));
-
-		if(border) body.push(this._seperator(total - maxLen + 1, this.__bottom));
+		for (let i = 0; i < this.__rows.length; i++) {
+			body.push(this._renderRow(this.__rows[i], " "));
+		}
+		border && body.push(this._seperator(total - mLen + 1, this.__bottom));
 
 		const prefix = this.options.prefix || "";
-
 		return prefix + body.join("\n" + prefix);
-	}
-
-	private _seperator(len: number, sep: string = "|") {
-		return sep + AsciiTable.alignRight(sep, len, this.__fill);
-	}
-
-	private _rowSeperator() {
-		const blanks = AsciiTable.arrayFill(this.__maxCells, this.__fill);
-
-		return this._renderRow(blanks, this.__fill);
-	}
-
-
-	private _renderTitle(len: number) {
-		const name = ` ${this.__name} `;
-		const str = AsciiTable.align(this.__nameAlign, name, len - 1, " ");
-
-		return `${this.__edge}${str}${this.__edge}`;
 	}
 
 	private _renderRow(row: Array<any>, str: string, align?: number) {
 		const tmp = [""];
 		const max = this.__colMaxes;
 
-		for(let k = 0; k < this.__maxCells; k++) {
+		for (let k = 0; k < this.__maxCells; k++) {
 			const cell = row[k];
 			const just = this.__justify ? Math.max.apply(null, max) : max[k];
 			const pad = just;
-			const colAlign = this.__aligns[k];
+			const cAlign = this.__aligns[k];
 			let use = align;
 			let method = "alignAuto";
 
-			if(typeof align === undefined) use = colAlign;
+			if (typeof align === "undefined") use = cAlign;
 
-			if(use === AsciiTable.LEFT) method = "alignLeft";
-			if(use === AsciiTable.RIGHT) method = "alignRight";
-			if(use === AsciiTable.LEFT) method = "alignLeft";
+			if (use === AsciiTable.LEFT) method = "alignLeft";
+			if (use === AsciiTable.CENTER) method = "alignCenter";
+			if (use === AsciiTable.RIGHT) method = "alignRight";
 
 			tmp.push(AsciiTable[method](cell, pad, str));
 		}
 
-		let front = tmp.join(`${str}${this.__edge}${str}`);
+		let front = tmp.join(str + this.__edge + str);
 		front = front.substr(1, front.length);
+		return front + str + this.__edge;
+	}
 
-		return `${front}${str}${this.__edge}`;
+	private _seperator(len: number, sep?: string) {
+		sep || (sep = this.__edge);
+  		return sep + AsciiTable.alignRight(sep, len, this.__fill);
+	}
+
+	private _renderTitle(len: number) {
+		const name = " " + this.__name + " ";
+		const str = AsciiTable.align(this.__nameAlign, name, len - 1, " ");
+
+		return this.__edge + str + this.__edge;
+	}
+
+	private _rowSeperator() {
+		const blanks = AsciiTable.arrayFill(this.__maxCells, this.__fill);
+		return this._renderRow(blanks, this.__fill);
 	}
 };
