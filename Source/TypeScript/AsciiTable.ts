@@ -263,7 +263,7 @@ export class AsciiTable {
 		};
 	}
 
-	public parse(obj: { title: string, heading: string, rows: any[] }) {
+	public parse(obj: { title: string, heading: string[], rows: any[] }) {
 		return this
 			// @ts-ignore
 			.reset()
@@ -360,5 +360,17 @@ export class AsciiTable {
 	private _rowSeperator() {
 		const blanks = AsciiTable.arrayFill(this.__maxCells, this.__fill);
 		return this._renderRow(blanks, this.__fill);
+	}
+
+	public clear(name: string | object) {
+		this.reset(name);
+	}
+
+	public toString() {
+		this.render();
+	}
+
+	public fromJSON(obj: { title: string, heading: string[], rows: any[]}) {
+		this.parse(obj);
 	}
 };
