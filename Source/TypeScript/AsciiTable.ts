@@ -363,14 +363,14 @@ export class AsciiTable {
 	}
 
 	public clear(name: string | object) {
-		this.reset(name);
+		return this.reset(name);
 	}
 
 	public toString() {
-		this.render();
+		return this.render();
 	}
 
 	public fromJSON(obj: { title: string, heading: string[], rows: any[]}) {
-		this.parse(obj);
+		return this.parse(obj);
 	}
 };

@@ -11,4 +11,4 @@ table
 	.addRow("Physics", "Phys")
 	.addRow("English", "Eng");
 
-console.log(table.render());
+console.log(table.toString());
